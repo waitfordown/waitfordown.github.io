@@ -1,0 +1,806 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="等天黑">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="JS笔记浏览器执行JS：渲染引擎 JS引擎浏览器主要是以JS引擎来执行JS代码JS组成:ECMAScript(js语法): Javascript(网景公司）&amp;Jscript（微软公司）原欧洲计算机制造商协会DOM(页面文档对象模型) 是W3C组织推荐的处理可扩展标记语言的标准编程接口 可以对页面上的各种元素进行操作BOM(浏览器对象模型) 对浏览器窗口进行操作三种书写位置：行内式 内嵌式">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JS笔记">
+<meta property="og:url" content="http://example.com/2022/04/25/js/index.html">
+<meta property="og:site_name" content="等天黑">
+<meta property="og:description" content="JS笔记浏览器执行JS：渲染引擎 JS引擎浏览器主要是以JS引擎来执行JS代码JS组成:ECMAScript(js语法): Javascript(网景公司）&amp;Jscript（微软公司）原欧洲计算机制造商协会DOM(页面文档对象模型) 是W3C组织推荐的处理可扩展标记语言的标准编程接口 可以对页面上的各种元素进行操作BOM(浏览器对象模型) 对浏览器窗口进行操作三种书写位置：行内式 内嵌式">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-04-25T09:31:57.000Z">
+<meta property="article:modified_time" content="2022-04-25T09:41:19.133Z">
+<meta property="article:author" content="等天黑">
+<meta property="article:tag" content="基础工具">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  <title>JS笔记 - 等天黑</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 6.0.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>等天黑</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="JS笔记">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-04-25 17:31" pubdate>
+        2022年4月25日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      5.4k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      45 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">JS笔记</h1>
+            
+            <div class="markdown-body">
+              <h1 id="JS笔记"><a href="#JS笔记" class="headerlink" title="JS笔记"></a>JS笔记</h1><h2 id="浏览器执行JS：渲染引擎-JS引擎"><a href="#浏览器执行JS：渲染引擎-JS引擎" class="headerlink" title="浏览器执行JS：渲染引擎 JS引擎"></a>浏览器执行JS：渲染引擎 JS引擎</h2><h3 id="浏览器主要是以JS引擎来执行JS代码"><a href="#浏览器主要是以JS引擎来执行JS代码" class="headerlink" title="浏览器主要是以JS引擎来执行JS代码"></a>浏览器主要是以JS引擎来执行JS代码</h3><h2 id="JS组成"><a href="#JS组成" class="headerlink" title="JS组成:"></a>JS组成:</h2><h3 id="ECMAScript-js语法-Javascript-网景公司）-amp-Jscript（微软公司）原欧洲计算机制造商协会"><a href="#ECMAScript-js语法-Javascript-网景公司）-amp-Jscript（微软公司）原欧洲计算机制造商协会" class="headerlink" title="ECMAScript(js语法): Javascript(网景公司）&amp;Jscript（微软公司）原欧洲计算机制造商协会"></a>ECMAScript(js语法): Javascript(网景公司）&amp;Jscript（微软公司）原欧洲计算机制造商协会</h3><h3 id="DOM-页面文档对象模型-是W3C组织推荐的处理可扩展标记语言的标准编程接口-可以对页面上的各种元素进行操作"><a href="#DOM-页面文档对象模型-是W3C组织推荐的处理可扩展标记语言的标准编程接口-可以对页面上的各种元素进行操作" class="headerlink" title="DOM(页面文档对象模型) 是W3C组织推荐的处理可扩展标记语言的标准编程接口 可以对页面上的各种元素进行操作"></a>DOM(页面文档对象模型) 是W3C组织推荐的处理可扩展标记语言的标准编程接口 可以对页面上的各种元素进行操作</h3><h3 id="BOM-浏览器对象模型-对浏览器窗口进行操作"><a href="#BOM-浏览器对象模型-对浏览器窗口进行操作" class="headerlink" title="BOM(浏览器对象模型) 对浏览器窗口进行操作"></a>BOM(浏览器对象模型) 对浏览器窗口进行操作</h3><h2 id="三种书写位置："><a href="#三种书写位置：" class="headerlink" title="三种书写位置："></a>三种书写位置：</h2><p><strong>行内式 内嵌式 外部JS样式</strong></p>
+<p>##注释：<br><strong>单行注释 ctrl +/</strong><br><strong>多行注释 ctrl shift /</strong></p>
+<p>##输入与输出：</p>
+<p><strong>浏览器弹出警示框</strong></p>
+<div class="code-wrapper"><pre><code class="hljs">alert(&#39;&#39;)
+</code></pre></div>
+<p><strong>浏览器控制台打印输出信息 控制台输出(开发人员查看 F12)</strong></p>
+<div class="code-wrapper"><pre><code class="hljs">console.log(&#39;&#39;) 
+</code></pre></div>
+<p><strong>浏览器弹出输入框用户可输入（接收用户输入的数据）</strong></p>
+<div class="code-wrapper"><pre><code class="hljs">prompt(&#39;&#39;)
+</code></pre></div>
+<h1 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h1><p><strong>装东西的盒子 用于存放数据的容器 通过变量获取数据 更改数据是程序在内存中申请的一块用来存放数据的空间</strong></p>
+<p><strong>变量的使用</strong></p>
+<ul>
+<li>声明 var age; (variable) 通过变量来访问数据</li>
+<li>赋值 age=10 </li>
+<li>输出结果 console.log(age)</li>
+<li>变量的初始化 var age =18 声明一个变量并赋值</li>
+<li>存储变量 var  age = prompt(‘’) 输出 alert(‘’) </li>
+</ul>
+<p><strong>变量的语法扩展</strong></p>
+<p>1.更新变量 一个变量被重新赋值后 它原有的值会被覆盖 变量值将以最后一次赋的值为准</p>
+<div class="code-wrapper"><pre><code class="hljs">var age = 18;
+age = 82; //最后的结果是82因为18被覆盖掉了
+</code></pre></div>
+<p>2.声明多个变量 只需一个 var 之间用逗号隔开</p>
+<div class="code-wrapper"><pre><code class="hljs">var age=10, name=&#39;zs&#39;, sex =2;
+</code></pre></div>
+<p>3.声明变量特殊情况</p>
+<div class="code-wrapper"><pre><code class="hljs">var age; console.log(age); //只声明不赋值
+undefined;
+
+console.log(age); //不声明 不赋值直接使用  报错
+
+age =10; console.log(age) //不声明只赋值   10
+</code></pre></div>
+<p><strong>变量命名规范</strong></p>
+<ul>
+<li><strong>由字母（A-Z a-z)、数字(0-9)、下划线(_)、美元符号($)</strong></li>
+<li><strong>严格区分大小写</strong></li>
+<li><strong>不能以数字开头</strong></li>
+<li><strong>不能是关键字、保留字</strong></li>
+<li><strong>变量名必须有意义</strong></li>
+<li><strong>遵守驼峰命名法，首字母小写，后面单词的首字母需要大写</strong></li>
+</ul>
+<p><strong>数据类型</strong></p>
+<p><strong>js是动态语言:</strong></p>
+<blockquote>
+<p><em><strong>不同数据占用的空间不同 为了便于把数据分成所需内存大小不同的数据，</strong></em><br><em><strong>充分利用存储空间，于是定义了不同的数据类型</strong></em></p>
+</blockquote>
+<p><strong>变量的数据类型</strong></p>
+<blockquote>
+<p>javascript的数据类型是只有程序在运行过程中根据等号右边的值来确定的</p>
+</blockquote>
+<div class="code-wrapper"><pre><code class="hljs">var age = 10;//这是一个数字型
+
+var areyouok =&#39;是的&#39;；//这是一个字符串
+</code></pre></div>
+<blockquote>
+<p>js拥有动态类型 同时也意味着相同的变量可用作不同的类型</p>
+</blockquote>
+<div class="code-wrapper"><pre><code class="hljs">var x = 6; //x为数字
+
+var x = &quot;bill&quot; //x为字符串
+</code></pre></div>
+<p><strong>js简单数据类型</strong></p>
+<blockquote>
+<p><strong>Number 数字型 包含整型值和浮点型值  默认值为0</strong></p>
+<p><strong>数字型进制 在JS中八进制前面加0，十六进制前面加0x</strong></p>
+</blockquote>
+<blockquote>
+<p><strong>数字型范围</strong><br><strong>最大值 Number.MAX_VALUE</strong><br><strong>最小值 Number.MIN_VALUE</strong></p>
+</blockquote>
+<blockquote>
+<p><strong>数字型三个特殊值</strong><br><strong>alert(Infinity); //Infinity 无穷大</strong><br><strong>alert(-Infinty); //-Infinty 无穷小</strong><br><strong>alert(NaN); //NaN 代表一个非数值</strong><br><strong>isNaN() 用来判断一个变量是否为非数值的类型 返回ture false</strong></p>
+</blockquote>
+<blockquote>
+<p><strong>Boolean 布尔值类型 ture false 默认值为false</strong><br><strong>ture参与加法运算当作1 false当作0</strong></p>
+</blockquote>
+<blockquote>
+<p><strong>String 字符串类型 都带有引号  默认为””</strong><br>字符串型 可以是引号中的任意文本 加双引号或者单引号</p>
+</blockquote>
+<div class="code-wrapper"><pre><code class="hljs">var strMsg= &quot;我爱天安门~&quot;; //使用双引号表示字符串
+var strMsg2= &#39;我爱吃猪蹄~&#39;; //使用单引号表示字符串
+</code></pre></div>
+<p><strong>常见错误</strong></p>
+<div class="code-wrapper"><pre><code class="hljs">var strMsg3= 我爱大肘子; // 报错，没使用引号 会被认为是js代码  
+</code></pre></div>
+<blockquote>
+<p>一般推荐使用单引号 可以用单引号嵌套双引号 或者双引号嵌套单引号（外双内单，外单内双）</p>
+</blockquote>
+<div class="code-wrapper"><pre><code class="hljs">var strMsg = &#39;我是“高富帅”程序员&#39;; //可以用&#39;&#39;包含&quot;&quot;
+var strMsg2 = “我是‘高富帅’程序员”; //也可以用&quot;&quot;包含&#39;&#39;
+</code></pre></div>
+<p><strong>常见错误</strong></p>
+<div class="code-wrapper"><pre><code class="hljs">var badQuotes = &#39;what on earth?&quot;; //报错，不能单双引号搭配
+</code></pre></div>
+<p><strong>字符串转义符</strong></p>
+<blockquote>
+<p>转义符都是\开头的<br>\n 换行符 newline<br>\ 斜杠\<br>&#39; ‘单引号<br>&quot; “双引号<br>\t tab缩进<br>\b 空格blank</p>
+</blockquote>
+<p><strong>字符串长度</strong></p>
+<blockquote>
+<p>通过字符串的length属性可以获取整个字符串的长度</p>
+</blockquote>
+<p><strong>字符串的拼接”+”</strong></p>
+<blockquote>
+<p><strong>字符串+任何类型=拼接之后的新字符串</strong></p>
+</blockquote>
+<div class="code-wrapper"><pre><code class="hljs">// 字符串&quot;相加&quot;
+alert(&#39;hello&#39;+&#39;&#39;&#39;world&#39;); //hello world
+
+// 数值字符串&quot;相加&quot;
+alert(&#39;100&#39;+&#39;100&#39;); //100100
+
+// 数值字符串+数值
+alert(&#39;11&#39;+12); //1112
+</code></pre></div>
+<blockquote>
+<p><strong>口诀：数值相加，字符相连</strong></p>
+</blockquote>
+<p><strong>字符串拼接加强</strong></p>
+<blockquote>
+<p>变量不要写到字符串里面，是通过和字符串相连的方式实现的</p>
+</blockquote>
+<blockquote>
+<p>Undefined 声明了变量但没有给值 默认为undefined</p>
+</blockquote>
+<p><strong>未定义数据类型</strong></p>
+<blockquote>
+<p>undefined与数字相加=NaN<br>Null 声明了变量但为空值  默认为Null<br>（js用户交互：1提示用户输入 2程序内部处理 3输出结果）</p>
+</blockquote>
+<p><strong>检测数据类型:</strong></p>
+<div class="code-wrapper"><pre><code class="hljs">console.log(typrof var);
+(prompt 取过来的是字符型的)
+</code></pre></div>
+<p><strong>字面量</strong></p>
+<blockquote>
+<p>是源代码中一个固定值的表示法 字面量就是表示如何表达这个值</p>
+</blockquote>
+<blockquote>
+<p>数字字面量：8，9，10<br>字符串字面量：’黑马程序员’,”大前端”<br>布尔字面量：true false</p>
+</blockquote>
+<p><strong>数据类型转换</strong></p>
+<blockquote>
+<p>把一种数据类型的变量转换成另外一种数据类型</p>
+</blockquote>
+<p><strong>常用的3种转换</strong></p>
+<div class="code-wrapper"><pre><code class="hljs">//转换为字符串:
+toString()； var num=1;alert(num.toString());
+
+//转换为数字型:
+String()强制转换  var num=1;alert(String());
+
+//加号拼接字符串 var num=1; alert(num + &quot;字符串&quot;)；
+//（第三种方法称之为隐式转换）
+
+//转换为数字型：
+parseInt(string)函数: parseInt(&#39;79&#39;); 会去掉单位 取整
+parseFloat(string) 函数 parseFloat(&#39;78.21&#39;); 得到小数
+Number()强制转换函数 Number(&#39;12&#39;)
+
+//js隐式转换(- * /) &#39;12&#39;-0; //利用了算数运算
+
+//转换为布尔型
+Boolean()函数 Boolean(&#39;ture&#39;);
+//代表空、否定的值会被转换为false 其他值都会被转换为ture
+</code></pre></div>
+<ul>
+<li>解释型语言（js）</li>
+<li>编译型语言（java)</li>
+</ul>
+<p><strong>编译器翻译的方式有两种</strong></p>
+<blockquote>
+<p><strong>一个是编译 另一个是解释 两者的区别在于翻译的时间点不同</strong></p>
+</blockquote>
+<blockquote>
+<p>编译器是在代码执行之前进行编译 生成中间代码文件</p>
+</blockquote>
+<blockquote>
+<p>解释器是在运行时进行及时解释 并立即执行（当编译器以解释方式运行时，也称之为解释器）</p>
+</blockquote>
+<p><strong>标识符：</strong></p>
+<blockquote>
+<p>值开发人员为变量、属性、函数、参数取的名字<br>标识符不能时关键字或保留字</p>
+</blockquote>
+<p><strong>关键字：</strong></p>
+<blockquote>
+<p>JS已经使用了的字 不能用来命名变量</p>
+</blockquote>
+<p><strong>保留字：</strong></p>
+<blockquote>
+<p>现在不是关键字 但未来可能成为关键字 不能用</p>
+</blockquote>
+<p><strong>运算符 operator</strong></p>
+<blockquote>
+<ul>
+<li>算术运算符（+ - * / %）都要敲空格 浮点数算术运算精度问题 不要用浮点数来直接比较大小</li>
+<li>表达式和返回值 数字和运算符和变量 结果为返回值 右边计算完把返回值给左边 </li>
+<li>递增和递减运算符 ++ – 必须和变量一起使用</li>
+<li>前置递增 ++age//age=age+1 先自加1后返回值</li>
+<li>后置递增 age++// 先返回原值 后自加1 开发中后置用的比较多 单独占一行</li>
+</ul>
+</blockquote>
+<p><strong>比较运算符</strong></p>
+<blockquote>
+<ul>
+<li>逻辑运算符 短路运算（逻辑中断）：当有多个表达式（值）可以确定结果时，就不再继续运算右边的表达式的值</li>
+<li>逻辑与短路运算：语法：表达式1&amp;&amp;表达式2 如果表达式1为真则返回表达式2 若为假则返回表达式1</li>
+<li>逻辑或短路运算：若1为真则返回1若1为假则返回2</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>赋值运算符(= += -= *= %= /=)</p>
+</blockquote>
+<p><strong>运算符优先级：</strong></p>
+<blockquote>
+<p><strong>小括号&gt;一元运算符&gt;算术运算符&gt;关系运算符&gt;相等运算符&gt;逻辑运算符&gt;赋值运算符&gt;逗号运算符</strong></p>
+<p><strong>一元运算符里面的逻辑非优先级很高 逻辑与比逻辑或优先级高</strong></p>
+</blockquote>
+<p><strong>流程分支</strong></p>
+<blockquote>
+<p><strong>流程控制：顺序、分支、循环</strong></p>
+</blockquote>
+<p><strong>分支结构：</strong></p>
+<div class="code-wrapper"><pre><code class="hljs">if语句：if(条件表达式)&#123;执行语句&#125;;
+
+if else if语句（多分支语句）
+//利用多个条件来选择不同的语句执行 得到不同的结果 多选1的过程
+
+语法规范：if (条件表达式)&#123;语句1&#125;else if (表达式2)&#123;语句2&#125;eles&#123;最后的语句&#125;
+</code></pre></div>
+<p><strong>三元表达式</strong></p>
+<blockquote>
+<p>有三元运算符组成的式子<br>语法结构：条件表达式 ？ 表达式1 ： 表达式2</p>
+</blockquote>
+<p><strong>switch语句：</strong></p>
+<p><strong>语法结构：</strong></p>
+<div class="code-wrapper"><pre><code class="hljs">switch(表达式)&#123;case value1:执行语句1;break;...default: 执行最后的语句;&#125;
+//注意事项：
+//1、在开发中，表达式我们经常写成变量
+//2、我们num的值和case里面的值和匹配的时候式全等才行
+</code></pre></div>
+<p><strong>循环结构：</strong></p>
+<blockquote>
+<p>循环的目的：可以重复执行某些代码</p>
+</blockquote>
+<div class="code-wrapper"><pre><code class="hljs">for循环（循环体 终止条件）//通常跟计数有关系
+for(初始化变量;条件表达式;操作表达式)&#123;循环体&#125;
+</code></pre></div>
+<blockquote>
+<p>初始化变量：用var声明的一个普通变量 用于作为计数器使用<br>条件表达式：用来决定每一次循环是否继续执行 就是终止的条件<br>操作表达式：每次循环最后执行的代码 经常用于我们计数器变量进行更新（递增或递减）</p>
+</blockquote>
+<blockquote>
+<p>断点调试 观察程序的运行过程 sources (step into next function call) watch<br>循环重复不相同的代码 因为有计数器的存在 每次i的变换循环值都会变化 </p>
+</blockquote>
+<p><strong>双重for循环（循环嵌套）</strong><br><strong>语法结构：</strong></p>
+<div class="code-wrapper"><pre><code class="hljs">for (外层的初始化变量；外层的条件表达式；外层的操作表达式)&#123;
+
+for (里层的初始化变量；里层的条件表达式；外层的操作表达式)&#123;
+    执行语句
+&#125;
+&#125;
+//外层循环循环一次 里面的循环执行全部
+</code></pre></div>
+<p><strong>while循环</strong><br><strong>语法规则：</strong></p>
+<div class="code-wrapper"><pre><code class="hljs">while （条件表达式）&#123;
+循环体
+&#125;
+//会出现死循环
+</code></pre></div>
+<p><strong>do…while循环</strong><br><strong>语法：</strong></p>
+<div class="code-wrapper"><pre><code class="hljs">do&#123;循环体&#125;while(条件表达式)
+//先循环一次 条件满足则继续执行
+</code></pre></div>
+<p><strong>关键字：</strong></p>
+<div class="code-wrapper"><pre><code class="hljs">continue //跳出本次循环 继续下一次循环
+break //循环结束
+</code></pre></div>
+<blockquote>
+<p>while 和 do while 可以做更复杂的判断条件比for更灵活 实际工作中更常用for 更简洁直观</p>
+</blockquote>
+<p><strong>数组:</strong></p>
+<blockquote>
+<p>一组数据的集合 每个数据称为元素 可存放任意类型元素 数据一定要用逗号隔开</p>
+</blockquote>
+<p><strong>创建数组</strong></p>
+<blockquote>
+<p>1、利用new创建 var arr = new Array ();<br>2、利用数组字面量创建 var arr = []; 数组的初始化</p>
+</blockquote>
+<p><strong>访问数组元素</strong> </p>
+<blockquote>
+<ul>
+<li>索引（下标 从0开始）console.log(arr[2]);</li>
+<li>遍历数组（全部取出） 索引值在递增 利用循环</li>
+</ul>
+</blockquote>
+<p><strong>数组的长度</strong></p>
+<blockquote>
+<p>数组名.length (不是元素个数)</p>
+</blockquote>
+<p><strong>数组新增元素</strong></p>
+<blockquote>
+<ul>
+<li>通过修改length的长度 修改长度：多一个为空 少一个为undefined<br>length属性式可读写的</li>
+<li>修改索引号 （就是替换）<br>不能直接给数组名赋值否则数据消失</li>
+</ul>
+</blockquote>
+<p><strong>数组排序（冒泡排序）:</strong> </p>
+<blockquote>
+<p>把一些数据按照一定的顺序进行排序显示</p>
+<blockquote>
+<p>1.一共要交换的趟数（外层for循环）arr.length-1<br>2.每一趟交换次数（里层for循环）arr.length-i-1<br>3.交换2个变量即可</p>
+</blockquote>
+</blockquote>
+<p><strong>函数:</strong></p>
+<blockquote>
+<p>封装了一段可以被重复执行调用的代码块 目的：大量代码重复使用</p>
+<blockquote>
+<p>使用：1、声明函数 2、调用函数 函数名（）<br>函数不调用自己不执行</p>
+</blockquote>
+</blockquote>
+<p><strong>函数的参数：</strong></p>
+<blockquote>
+<p>形参 实参</p>
+</blockquote>
+<div class="code-wrapper"><pre><code class="hljs">function (形参1，形参2...)&#123;&#125; 函数名(实参1，实参2...);
+</code></pre></div>
+<blockquote>
+<blockquote>
+<p>形参式接收实参的 形参类似于一个变量 函数参数可有可无 个数不限</p>
+</blockquote>
+</blockquote>
+<p><strong>形参和实参的匹配问题</strong> </p>
+<blockquote>
+<p>1.形参与实参的个数一致 则正常输出<br>2.若实参个数&gt;形参个数 取形参个数<br>3.若实参个数&lt;形参个数 NaN (形参默认undifend)</p>
+</blockquote>
+<p><strong>函数的返回值 return 语句：</strong></p>
+<div class="code-wrapper"><pre><code class="hljs">function 函数名()&#123;
+return 需要返回的结果;&#125;
+</code></pre></div>
+<blockquote>
+<blockquote>
+<p>1、函数只是实现某种功能 最终结果需要返回给函数的调用者<br>2、只要遇到return 就把后面的结果返回值给函数调用者 函数名()=return 后面的结果<br><strong>在实际开发时 常用一个变量来接收函数返回结果更简洁</strong></p>
+</blockquote>
+</blockquote>
+<p><strong>return 终止函数:</strong></p>
+<blockquote>
+<p>return后面的代码不会去执行<br>return 只能返回一个值 (返回的结果是最后一个值) 也可返回数组<br>没有return 则返回undefined</p>
+</blockquote>
+<div class="code-wrapper"><pre><code class="hljs">break: //结束当前循环 
+continue://跳出循环 继续执行下次的循环
+return://可退出循环 也能返回return 语句中的值 同时还可以结束当前函数的代码
+</code></pre></div>
+<p><strong>argument 的使用：</strong></p>
+<blockquote>
+<p>当不确定有多少个参数传递的时候 用argument来获取 他实际上是当前函数的一个内置对象所有函数都有 argument对象中存储了传递的所有实参 </p>
+</blockquote>
+<p><strong>使用：</strong></p>
+<div class="code-wrapper"><pre><code class="hljs">console.log (argument);
+</code></pre></div>
+<blockquote>
+<blockquote>
+<p>argument 展示形式为伪数组</p>
+<ul>
+<li>有length属性</li>
+<li>按索引方式储存数据</li>
+<li>不具有数组push pop等 （可遍历）</li>
+</ul>
+</blockquote>
+</blockquote>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%9F%BA%E7%A1%80%E5%B7%A5%E5%85%B7/">基础工具</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/01/06/markdown%E8%AF%AD%E6%B3%95%E4%B8%80%E8%A7%88/">
+                        <span class="hidden-mobile">markdown 语法一览</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+</html>
